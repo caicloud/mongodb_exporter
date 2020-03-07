@@ -39,6 +39,15 @@ export PMM_RELEASE_TIMESTAMP  = $(shell date '+%s')
 export PMM_RELEASE_FULLCOMMIT = $(APP_REVISION)
 export PMM_RELEASE_BRANCH     = $(TRAVIS_BRANCH)
 
+ARCH ?= amd64
+
+# Change Dockerfile name and registry project name for arm64
+ifeq ($(ARCH),arm64)
+DOCKERFILE := Dockerfile.arm64
+else
+DOCKERFILE := Dockerfile
+endif
+
 all: clean format build test
 
 style:
@@ -89,7 +98,7 @@ community-release: $(GOPATH)/bin/goreleaser
 
 docker:
 	@echo ">> building docker image"
-	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
+	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" -f $(DOCKERFILE) .
 
 $(GOPATH)/bin/dep:
 	curl -s https://raw.githubusercontent.com/golang/dep/v0.5.0/install.sh | sh
